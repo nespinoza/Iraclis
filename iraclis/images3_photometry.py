@@ -508,15 +508,23 @@ def photometry(input_data, white_lower_wavelength=None, white_upper_wavelength=N
         for i in [white_dictionary] + bins_dictionaries:
             lower_wavelength.from_dictionary(i)
             upper_wavelength.from_dictionary(i)
-            flux, error, ph_error = used_extraction_method(fits, lower_wavelength.value, upper_wavelength.value,
-                                                           aperture_lower_extend.value, aperture_upper_extend.value,
-                                                           extraction_gauss_sigma.value)
+            if extraction_method.value == 'integral':
+                flux, error = used_extraction_method(fits, lower_wavelength.value, upper_wavelength.value,
+                                                               aperture_lower_extend.value, aperture_upper_extend.value,
+                                                               extraction_gauss_sigma.value)
+            else:
+                flux, error, ph_error = used_extraction_method(fits, lower_wavelength.value, upper_wavelength.value,
+                                                               aperture_lower_extend.value, aperture_upper_extend.value,
+                                                               extraction_gauss_sigma.value)
             flux_array.from_dictionary(i)
             flux_array.to_dictionary(i, value=np.append(flux_array.value, flux))
             error_array.from_dictionary(i)
             error_array.to_dictionary(i, value=np.append(error_array.value, error))
             ph_error_array.from_dictionary(i)
-            ph_error_array.to_dictionary(i, value=np.append(ph_error_array.value, ph_error))
+            if extraction_method.value == 'integral':
+                ph_error_array.to_dictionary(i, value=np.append(ph_error_array.value, error))
+            else:
+                ph_error_array.to_dictionary(i, value=np.append(ph_error_array.value, ph_error))
 
         counter.update()
 
